@@ -7,3 +7,5 @@ Tracking the user's movements and building an animated model with which the user
 Libraries and dependancies:
 The online editor that we are using:https://editor.p5js.org/#
 The library we are using for detecting the position of the user:https://ml5js.org/reference/api-PoseNet/
+
+The code that we have done so far has been added to the repo.The files can be opened in p5 editor mentioned above.
