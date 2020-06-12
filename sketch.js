@@ -1,127 +1,104 @@
-// Copyright (c) 2018 ml5
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-// altered code by Luca Damasco 2 luxapodular
-
-/* ===
-ml5 Example
-PoseNet example using p5.js
-=== */
-
 let video;
-let poseNet;
-let poses = [];
+let posNet;
+let noseX=0;
+let noseY=0;
+let Leye_X=0;
+let Leye_Y=0;
+let Reye_X=0;
+let Reye_Y=0;
+let X_Cord=0;
+let Y_Cord=0;
+let Dist;
+let flag=1;
 
-// Storing the last keypoint position
-let lastKeypoints = [];
-
-function setup() {
-  
-  
-  infront = loadSound('infront.mp3');
-  behind = loadSound('behind.mp3');
-  noone = loadSound('noone.mp3');
-  
-  createCanvas(640, 480);
-  video = createCapture(VIDEO);
-  video.size(width, height);
-
-  // Create a new poseNet method with a single detection
-  poseNet = ml5.poseNet(video);
-  // This sets up an event that fills the global variable "poses"
-  // with an array every time new poses are detected
-  poseNet.on('pose', function(results) {
-    poses = results;
-  });
-  // Hide the video element, and just show the canvas
+function setup(){
+createCanvas(648,480);
+  video= createCapture(VIDEO);
   video.hide();
-	
-  print(lastKeypoints); 
-	// setup original keypoints
-	createDefaultKeypoints(); 
-  print(lastKeypoints);
+  posNet=ml5.poseNet(video);
+  posNet.on('pose',gotPoses);
 }
 
-// Create default keypoints for easing. 
-function createDefaultKeypoints() {
-	let numKeypoints = 17; 
-	for (let i=0; i<numKeypoints; i++) {
-		newKeypoint = {x:width/2,
-									 y:height/2}
-    
-		lastKeypoints.push(newKeypoint);
-	}
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) ) + min;
+
 }
 
-function updateKeypoints() {
-	// If there are no poses, ignore it.
-	if (poses.length <= 0) {
-		return; 
-	}
-	
-	// Otherwise, let's update the points; 
-	
-	let pose = poses[0].pose;
-	let keypoints = pose.keypoints; 
-	
-	for (let kp=0; kp<keypoints.length; kp++) {
-    
-		let oldKeypoint = lastKeypoints[kp];
-		let newKeypoint = keypoints[kp].position; 
-		
-		let interpX = lerp(oldKeypoint.x, newKeypoint.x, .3); 
-		let interpY = lerp(oldKeypoint.y, newKeypoint.y, .3); 
-		
-		let interpolatedKeypoint = {x: interpX,
-																y: interpY}
-		
-		lastKeypoints[kp] = interpolatedKeypoint; 
-	}
+function CheckHit()
+{ if((dist(X_Cord,Y_Cord,noseX,noseY)<100)||(dist(X_Cord,Y_Cord,Leye_X,Leye_Y)<100))
+{
+  flag=1;
+  //let CnTr+=50;
+ // console.log(CnTr);
 }
-
-function draw() {
-  image(video, 0, 0, width, height);
-
-	updateKeypoints(); 
   
-  drawKeypoints();
+  //console.log(dist(X_Cord,Y_Cord,noseX,noseY));
+  //console.log(dist(X_Cord,Y_Cord,Leye_X,Leye_Y));
 }
 
-// A function to draw ellipses over the detected keypoints
-function drawKeypoints()  {
+function generateTargets()
+{ X_Cord=getRndInteger(50,600);
+  Y_Cord=getRndInteger(40,430);
+ console.log('Targetgenrated'); 
+ console.log(X_Cord);
+ console.log(Y_Cord);
+}
+
+
+function gotPoses(poses){
+  console.log(poses);
+  console.log('making sense');
+if(poses.length>0)
+{
+  let nX=poses[0].pose.keypoints[9].position.x;
+  let nY=poses[0].pose.keypoints[9].position.y;
+  let eXL=poses[0].pose.keypoints[10].position.x;
+  let eYL=poses[0].pose.keypoints[10].position.y;
+  let eXR=poses[0].pose.keypoints[2].position.x;
+  let eYR=poses[0].pose.keypoints[2].position.y;
+  Reye_X=eXR;
+  Reye_Y=eYR;
+ if(poses[0].pose.keypoints[9].score>0.2)
+ {
+  noseX=nX
+  noseY=nY 
+ }
+   if(poses[0].pose.keypoints[10].score>0.2)
+ {  Leye_X=eXL;
+  Leye_Y=eYL;
+
+   }
+  //console.log(noseX);
+  //console.log(noseY);
+  /*ellipse(Leye_X,Leye_Y,50);
+  ellipse(Reye_X,Reye_Y,50);
+  */
+}
+}
+
+function draw(){
+  background(220);
+  image(video,0,0);
+  fill(255,0,0);
+  Dist=dist(Leye_X,Leye_Y,Reye_X,Reye_Y);
+  Dist=0.75*Dist;
+  //ellipse(noseX,noseY,40);
+  //ellipse(Leye_X,Leye_Y,40);
+  fill(0,255,0);
+  CheckHit();
+  if(flag)
+  {
+   generateTargets();
+    flag=0;
+  }
+  ellipse(X_Cord,Y_Cord,40);
   
-	for (let i=0; i<lastKeypoints.length; i++) {
-		keypoint = lastKeypoints[i]; 
-    fill(255,0,0); 
-    ellipse(keypoint.x, keypoint.y, 10,10); 
-	}
+ 
+  //ellipse(Reye_X,Reye_Y,Dist);
+  
 }
 
-
-function someoneBehind() {
-  if (behind.isPlaying() or infront.isPlaying() or noone.isPlaying() ) {
-    //do nothing
-  } else {
-    behind.play();
-  }
+function modelReady()
+{
+  console.log('ready!');  
 }
-
-
-function someoneInfront() {
-  if (behind.isPlaying() or infront.isPlaying() or noone.isPlaying() ) {
-    //do nothing
-  } else {
-    infront.play();
-  }
-}
-
-
-function noOne() {
-  if (behind.isPlaying() or infront.isPlaying() or noone.isPlaying() ) {
-    //do nothing
-  } else {
-    noone.play();
-  }
-}
-
