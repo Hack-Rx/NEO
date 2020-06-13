@@ -1,24 +1,26 @@
-function clientShare(pass)
-{	 
-	var coord;
+var coord;
+ function clientShare(pass)
+ {
 	const net = require('net');
 
 	// Connect to a server @ port 9898
 	const client = net.createConnection({ port: 9898 }, () => {
-	  console.log('LOG: Client connected to the server.');
-	  client.write('Hello');
+	  //console.log('Log: CS');
+	  client.write(pass);
 	});
 
 	client.on('data', (data) => {
-	  console.log(data.toString());
+	  //console.log(data.toString());
+	  coord = data.toString();
 	  client.end();
-	  inp = data.toString();
+	  console.log(coord);
 	});
 
 	client.on('end', () => {
-	  console.log('CLIENT: I disconnected from the server.');
+	  //console.log('Log: dis');
 	});
 }
-var i1 = clientShare("Hello")
+clientShare("CC: 120x120");
+
 
 
