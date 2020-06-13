@@ -1,25 +1,29 @@
-
+var coord;
 function serverShare(pass)
 {
-	var coord;
 	const net = require('net');
+	
+
 	// Create a server object
 	const server = net.createServer((socket) => {
 	  socket.on('data', (data) => {
 	    console.log(data.toString());
 	    coord = data.toString();
+	  //console.log(coord);
 	  });
 
 	  socket.write(pass);
+	//  socket.end('SERVER: Closing connection now.\n');
 	}).on('error', (err) => {
 	  console.error(err);
 	});
 
+	// Open server on port 9898
 	server.listen(9898, () => {
-	  console.log('LOG: opened server on', server.address().port);
-	}); 
+	  console.log('opened server on', server.address().port);
 
-	return coord;
+	}); 
 }
-var c1 = serverShare("Hi");
-var c2 = serverShare(c1);
+serverShare("CS:100x090");
+
+
