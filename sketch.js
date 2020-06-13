@@ -1,4 +1,5 @@
 let video;
+let CV;
 let posNet;
 let noseX = 0;
 let noseY = 0;
@@ -18,12 +19,38 @@ let flg = 0;
 let CnTr = 0;
 let Squats=0;
 let tmp=0;
+let PUSHUP=0;
 function setup() {
   createCanvas(648, 480);
   video = createCapture(VIDEO);
   video.hide();
   posNet = ml5.poseNet(video);
   posNet.on('pose', gotPoses);
+}
+
+function Twister()
+{
+  if((p.length>0))
+     {  
+  if(((p[0].pose.keypoints[7].score)>0.2) && ((p[0].pose.keypoints[0].score)>0.2))
+  {
+     console.log("WOR");
+  console.log(p[0].pose.keypoints[7].position.y);
+    console.log("BOR");
+  console.log(p[0].pose.keypoints[0].position.y);
+    if(!CV)
+    { if(p[0].pose.keypoints[7].position.y>p[0].pose.keypoints[0].position.y)
+    {CV=1;
+     }
+    }
+    if(CV)
+ {if(p[0].pose.keypoints[7].position.y<p[0].pose.keypoints[0].position.y)
+  {CV=0;
+   PUSHUP++;
+  } 
+ }
+}
+}
 }
 
 function getRndInteger(min, max) {
@@ -77,7 +104,7 @@ function generateTargets() {
 
 
 function gotPoses(poses) {
-  //console.log(poses);
+  console.log(poses);
 
   console.log('making sense');
   p = poses;
@@ -115,6 +142,7 @@ function gotPoses(poses) {
     }
     Dodge();
     dooge();
+    Twister();
     if (FL) {
       fill(15, 10, 70);
       console.log('drat');
@@ -162,7 +190,8 @@ function draw() {
   CheckHit();
   textSize(34);
   text(CnTr, 540, 420);
-  text(Squats,50,400);
+  text(PUSHUP,300,420);
+  text(Squats,50,420);
   if (flag) {
     generateTargets();
     flag = 0;
